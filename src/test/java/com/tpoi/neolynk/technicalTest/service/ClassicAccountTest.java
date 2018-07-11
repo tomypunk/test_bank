@@ -1,6 +1,7 @@
 package com.tpoi.neolynk.technicalTest.service;
 
 import com.tpoi.neolynk.technicalTest.exception.IllegalBalanceException;
+import com.tpoi.neolynk.technicalTest.exception.InvalidOperation;
 import org.junit.Test;
 
 public class ClassicAccountTest
@@ -30,4 +31,17 @@ public class ClassicAccountTest
     {
         accountRule.addAuthorized(1000L, 1000L);
     }
+
+    @Test(expected = InvalidOperation.class)
+    public void add_negative_value() throws Exception
+    {
+        accountRule.addAuthorized(1000L, -1000L);
+    }
+
+    @Test(expected = InvalidOperation.class)
+    public void withdraw_negative_value() throws Exception
+    {
+        accountRule.withdrawAuthorized(1000L, -1000L);
+    }
+
 }

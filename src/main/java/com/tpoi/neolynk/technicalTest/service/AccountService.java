@@ -3,6 +3,7 @@ package com.tpoi.neolynk.technicalTest.service;
 import com.tpoi.neolynk.technicalTest.entity.Account;
 import com.tpoi.neolynk.technicalTest.exception.IdNotFound;
 import com.tpoi.neolynk.technicalTest.exception.IllegalBalanceException;
+import com.tpoi.neolynk.technicalTest.exception.InvalidOperation;
 import com.tpoi.neolynk.technicalTest.exception.RepositoryException;
 import com.tpoi.neolynk.technicalTest.repository.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ public class AccountService
      * @throws Repository              if we have problems with da
      */
     public long withdrawAndReportBalance(UUID id, long withdrawnAmount, AccountRule rule)
-            throws IllegalBalanceException, IdNotFound, RepositoryException
+            throws IllegalBalanceException, IdNotFound, RepositoryException, InvalidOperation
     {
         Account account = accountRepository.findById(id).orElseThrow(() -> new IdNotFound("User doesn't with uuid " + id + " exist"));
         rule.withdrawAuthorized(account.getBalance(), withdrawnAmount);

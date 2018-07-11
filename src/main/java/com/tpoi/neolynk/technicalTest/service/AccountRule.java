@@ -1,6 +1,7 @@
 package com.tpoi.neolynk.technicalTest.service;
 
 import com.tpoi.neolynk.technicalTest.exception.IllegalBalanceException;
+import com.tpoi.neolynk.technicalTest.exception.InvalidOperation;
 
 public interface AccountRule
 {
@@ -11,7 +12,8 @@ public interface AccountRule
      * @param withdrawAmount       - withdraw value to remove
      * @throws IllegalBalanceException throws if the withdraw is not authorized
      */
-    void withdrawAuthorized(long initialAccountAmount, long withdrawAmount) throws IllegalBalanceException;
+    void withdrawAuthorized(long initialAccountAmount, long withdrawAmount)
+            throws IllegalBalanceException, InvalidOperation;
 
     /**
      * check if you are authorized to add the amount
@@ -20,6 +22,6 @@ public interface AccountRule
      * @param addAmount            - amount to add
      * @throws IllegalBalanceException throws if you want to add too much
      */
-    void addAuthorized(long initialAccountAmount, long addAmount) throws IllegalBalanceException;
+    void addAuthorized(long initialAccountAmount, long addAmount) throws IllegalBalanceException, InvalidOperation;
 
 }
