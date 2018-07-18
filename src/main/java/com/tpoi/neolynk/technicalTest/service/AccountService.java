@@ -6,22 +6,17 @@ import com.tpoi.neolynk.technicalTest.exception.IllegalBalanceException;
 import com.tpoi.neolynk.technicalTest.exception.InvalidOperation;
 import com.tpoi.neolynk.technicalTest.exception.RepositoryException;
 import com.tpoi.neolynk.technicalTest.repository.Repository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
 public class AccountService
 {
-
     private final Repository<Account> accountRepository;
 
-    @Autowired
-    public AccountService(Repository<Account> accountRepository)
+    public AccountService()
     {
-        this.accountRepository = accountRepository;
+        accountRepository = new Repository<>();
     }
 
 
@@ -60,5 +55,11 @@ public class AccountService
     long addAndReportBalance(Account account, long addAmount, AccountRule rule) throws IllegalBalanceException
     {
         return 1L;
+    }
+
+
+    public void createAccount(Optional<Account> account) throws RepositoryException
+    {
+        accountRepository.save(account);
     }
 }

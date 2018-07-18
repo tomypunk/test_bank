@@ -10,6 +10,7 @@ import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -27,5 +28,6 @@ public class User extends AbstractEntity
     Date birthDate;
     Address address;
     String phoneNumber;
-    Set<Account> accounts;
+    @Builder.Default
+    Set<Account> accounts = new HashSet<>();
 }
