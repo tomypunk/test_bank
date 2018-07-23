@@ -19,5 +19,6 @@ public class Account extends AbstractEntity
 {
     Date startDate;
     Date endDate;
+    @Builder.Default
     long balance = 0;
 }
