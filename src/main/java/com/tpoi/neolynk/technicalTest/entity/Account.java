@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
@@ -21,4 +22,5 @@ public class Account extends AbstractEntity
     Date endDate;
     @Builder.Default
     long balance = 0;
+    UUID userId;
 }

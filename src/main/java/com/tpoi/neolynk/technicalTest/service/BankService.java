@@ -9,10 +9,12 @@ import com.tpoi.neolynk.technicalTest.exception.RepositoryException;
 import com.tpoi.neolynk.technicalTest.repository.Repository;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static java.util.Optional.of;
 
 public class BankService
 {
@@ -43,7 +45,7 @@ public class BankService
         Account account = accountRepository.findById(id).orElseThrow(() -> new IdNotFound("Account with uuid " + id + " doesn't exist"));
         rule.withdrawAuthorized(account.getBalance(), withdrawnAmount);
         account.setBalance(account.getBalance() - withdrawnAmount);
-        accountRepository.save(Optional.of(account));
+        accountRepository.save(of(account));
         return account.getBalance();
     }
 
@@ -62,7 +64,7 @@ public class BankService
         Account account = accountRepository.findById(id).orElseThrow(() -> new IdNotFound("Account with uuid " + id + " doesn't exist"));
         rule.addAuthorized(account.getBalance(), addAmount);
         account.setBalance(account.getBalance() + addAmount);
-        accountRepository.save(Optional.of(account));
+        accountRepository.save(of(account));
         return account.getBalance();
     }
 
@@ -109,8 +111,17 @@ public class BankService
      */
     public Optional<User> getUser(UUID uuid) throws RepositoryException
     {
+        Set<Account> readAccounts = accountRepository.findAll().stream().filter(t -> t.getUserId().equals(uuid)).collect(
+                Collectors.toSet());
 
-        return userRepository.findById(uuid);
+        Optional<User> user = userRepository.findById(uuid);
+        if(user.isPresent())
+        {
+            Set<Account> acct = user.get().getAccounts();
+            acct.addAll(readAccounts);
+            user.get().setAccounts(acct);
+        }
+        return user;
     }
 
     /**
@@ -122,22 +133,23 @@ public class BankService
      */
     public Set<Account> getAccounts(UUID uuid) throws RepositoryException
     {
-        return getUser(uuid).map(User::getAccounts).orElse(new HashSet<>());
+        return getUser(uuid).map(User::getAccounts).orElseGet(Collections::emptySet);
     }
 
     /**
-     * link an account to an user
+     * Get the balance of all accounts
      *
-     * @param uuid    - id of the user
-     * @param account - account to link
+     * @param uuid - id of the user
+     * @return the sum of all accounts
      * @throws RepositoryException
+     * @throws IdNotFound
      */
-    public void linkAccountToUser(UUID uuid, Optional<Account> account) throws RepositoryException
+    public long balanceOfAllAccounts(UUID uuid) throws RepositoryException, IdNotFound
     {
-        Optional<User> user = getUser(uuid);
-        account.ifPresent(
-                user.map(User::getAccounts)
-                        .orElseGet(Collections::emptySet)::add);
-        updateUser(user);
+        User user = getUser(uuid).orElseThrow(() -> new IdNotFound("Account with uuid " + uuid + " doesn't exist"));
+        long sum = user.getAccounts().stream().mapToLong(Account::getBalance).sum();
+        System.out.println(sum);
+        return sum;
+
     }
 }

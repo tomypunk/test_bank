@@ -56,9 +56,9 @@ public class BankServiceTest
 
         Calendar cal = Calendar.getInstance();
         Date today = cal.getTime();
-        cal.add(Calendar.YEAR, 1); // to get previous year add -1
+        cal.add(Calendar.YEAR, 1);
         Date nextYear = cal.getTime();
-        account = Account.builder().balance(0).startDate(today).endDate(nextYear).build();
+        account = Account.builder().balance(0).startDate(today).endDate(nextYear).userId(testUser.getId()).build();
         account.setId(UUID.randomUUID());
     }
 
@@ -69,8 +69,6 @@ public class BankServiceTest
     {
         bankService.createAccount(Optional.of(account));
         bankService.createUser(user);
-        bankService.linkAccountToUser(user.get().getId(), Optional.of(account));
-
         long balance = bankService.withdrawAndReportBalance(account.getId(), 100L, new ClassicAccountRule());
         assertEquals(-100L, balance);
     }
@@ -81,7 +79,6 @@ public class BankServiceTest
     {
         bankService.createAccount(Optional.of(account));
         bankService.createUser(user);
-        bankService.linkAccountToUser(testUser.getId(), Optional.of(account));
         bankService.withdrawAndReportBalance(account.getId(), -100L, new ClassicAccountRule());
     }
 
@@ -91,7 +88,6 @@ public class BankServiceTest
     {
         bankService.createAccount(Optional.of(account));
         bankService.createUser(user);
-        bankService.linkAccountToUser(testUser.getId(), Optional.of(account));
         bankService.withdrawAndReportBalance(account.getId(), 190000L, new ClassicAccountRule());
     }
 
@@ -134,8 +130,6 @@ public class BankServiceTest
     {
         bankService.createAccount(Optional.of(account));
         bankService.createUser(user);
-
-        bankService.linkAccountToUser(user.map(AbstractEntity::getId).orElse(null), Optional.of(account));
         Optional<User> optionalResultUser = bankService.getUser(user.map(AbstractEntity::getId).orElse(null));
         Assert.assertTrue(optionalResultUser.isPresent());
         User resultUser = optionalResultUser.get();
@@ -156,7 +150,6 @@ public class BankServiceTest
     {
         bankService.createAccount(Optional.of(account));
         bankService.createUser(user);
-        bankService.linkAccountToUser(user.map(AbstractEntity::getId).orElse(null), Optional.of(account));
         assertEquals(1, bankService.getAccounts(testUser.getId()).size());
     }
 
@@ -166,7 +159,6 @@ public class BankServiceTest
     {
         bankService.createAccount(Optional.of(account));
         bankService.createUser(user);
-        bankService.linkAccountToUser(user.get().getId(), Optional.of(account));
         long balance = bankService.addAndReportBalance(account.getId(), 1000L, new ClassicAccountRule());
         assertEquals(1000L, balance);
     }
@@ -176,7 +168,6 @@ public class BankServiceTest
     {
         bankService.createAccount(Optional.of(account));
         bankService.createUser(user);
-        bankService.linkAccountToUser(user.get().getId(), Optional.of(account));
         bankService.addAndReportBalance(account.getId(), -1005L, new ClassicAccountRule());
     }
 
@@ -186,8 +177,38 @@ public class BankServiceTest
     {
         bankService.createAccount(Optional.of(account));
         bankService.createUser(user);
-        bankService.linkAccountToUser(user.get().getId(), Optional.of(account));
         bankService.addAndReportBalance(account.getId(), 100006000L, new ClassicAccountRule());
     }
+
+
+    @Test
+    public void allBalance() throws Exception
+    {
+        bankService.createAccount(Optional.of(account));
+        bankService.createUser(user);
+        bankService.addAndReportBalance(account.getId(), 1000000L, new ClassicAccountRule());
+
+        System.out.println("account1 --> " + account);
+        Calendar cal = Calendar.getInstance();
+        Date today = cal.getTime();
+        cal.add(Calendar.YEAR, 2);
+        Account account2 = Account.builder()
+                .startDate(today)
+                .endDate(cal.getTime())
+                .balance(199L)
+                .userId(testUser.getId())
+                .build();
+        account2.setId(UUID.randomUUID());
+
+
+        System.out.println(account.getId() + " - " + account2.getId());
+
+        bankService.createAccount(Optional.of(account2));
+
+
+        assertEquals(2, bankService.getAccounts(user.get().getId()).size());
+        assertEquals(1000000L + 199L, bankService.balanceOfAllAccounts(user.get().getId()));
+    }
+
 
 }

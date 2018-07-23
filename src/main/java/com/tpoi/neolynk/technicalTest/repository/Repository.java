@@ -18,10 +18,15 @@ public class Repository<T extends AbstractEntity>
     {
         T entity = optionalEntity.orElseThrow(() -> new RepositoryException("Entity is null"));
 
-        if(inMemoryRepository.contains(entity))
+        List<T> elementToDelete = new ArrayList<>(inMemoryRepository.size());
+        for(T currentEntity : inMemoryRepository)
         {
-            inMemoryRepository.remove(entity);
+            if(currentEntity.getId().equals(entity.getId()))
+            {
+                elementToDelete.add(currentEntity);
+            }
         }
+        inMemoryRepository.removeAll(elementToDelete);
         inMemoryRepository.add(entity);
     }
 
